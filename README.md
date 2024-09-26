@@ -35,17 +35,17 @@ https://ayatana-indicators.org
 ## The Ayatana Application Indicator (Shared Library)
 
 A library to allow applications to export a menu into the an Application
-Indicators aware menu bar. Based on KSNI it also works in KDE and will
-fallback to generic Systray support if none of those are available.
+Indicators aware menu bar. Based on KSNI it also works in KDE.
 
 This code project was originally started by Canonical Ltd. and has been
 adapted by various authors with the purpose of making this Application
 Indicators available on Ubuntu and non-Ubuntu systems alike.
 
-## License and Copyright
+## Licence and Copyright
 
 See COPYING and AUTHORS file in this project.
 
 ## Building and Testing
 
-For instructions on building and running built-in tests, see the INSTALL.md file.
+For instructions on building and running built-in tests, see the
+INSTALL.md file.

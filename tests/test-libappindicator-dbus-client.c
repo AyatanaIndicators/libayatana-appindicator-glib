@@ -1,49 +1,44 @@
 /*
-Tests for the libappindicator library that are over DBus.  This is
-the client side of those tests.
+ * Tests for the libappindicator library that are over DBus.  This is
+ * the client side of those tests.
+ *
+ * Copyright 2009 Ted Gould <ted@canonical.com>
+ * Copyright 2023-2024 Robert Tari <robert@tari.in>
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 3, as published
+ * by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright 2009 Canonical Ltd.
-Copyright 2023 Robert Tari
-
-Authors:
-    Ted Gould <ted@canonical.com>
-    Robert Tari <robert@tari.in>
-
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License version 3, as published
-by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranties of
-MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include <glib.h>
-#include <app-indicator.h>
+#include <ayatana-appindicator.h>
 #include "test-defines.h"
 #include "../src/dbus-shared.h"
 
-static GMainLoop * mainloop = NULL;
-static gboolean passed = TRUE;
-static int propcount = 0;
+static GMainLoop *m_pMainLoop = NULL;
+static gboolean m_bPassed = TRUE;
+static int m_nPropCount = 0;
 
-static void
-check_propcount (void)
+static void checkPropCount (void)
 {
-    if (propcount >= 5) {
-        g_main_loop_quit(mainloop);
+    if (m_nPropCount >= 6)
+    {
+        g_main_loop_quit (m_pMainLoop);
     }
+
     return;
 }
 
-static void prop_id_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
+static void onPropId (GObject *pObject, GAsyncResult *pResult, void *pData)
 {
-    propcount++;
+    m_nPropCount++;
     GError *pError = NULL;
     GVariant *pParams = g_dbus_proxy_call_finish (G_DBUS_PROXY (pObject), pResult, &pError);
 
@@ -57,7 +52,7 @@ static void prop_id_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
         if (nComp)
         {
             g_debug ("Property ID Returned: FAILED");
-            passed = FALSE;
+            m_bPassed = FALSE;
         }
         else
         {
@@ -71,20 +66,20 @@ static void prop_id_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
     {
         g_warning ("Getting ID failed: %s", pError->message);
         g_error_free (pError);
-        passed = FALSE;
-        check_propcount();
+        m_bPassed = FALSE;
+        checkPropCount ();
 
         return;
     }
 
-    check_propcount();
+    checkPropCount ();
 
     return;
 }
 
-static void prop_category_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
+static void onPropCategory (GObject *pObject, GAsyncResult *pResult, void *pData)
 {
-    propcount++;
+    m_nPropCount++;
     GError *pError = NULL;
     GVariant *pParams = g_dbus_proxy_call_finish (G_DBUS_PROXY (pObject), pResult, &pError);
 
@@ -93,12 +88,12 @@ static void prop_category_cb (GObject *pObject, GAsyncResult *pResult, void *pUs
         gchar *sInterface = NULL;
         gchar *sCategory = NULL;
         g_variant_get (pParams, "(ss)", &sInterface, &sCategory);
-        gint nComp = g_strcmp0 (TEST_CATEGORY_S, sCategory);
+        gint nComp = g_strcmp0 ("ApplicationStatus", sCategory);
 
         if (nComp)
         {
             g_debug ("Property category Returned: FAILED");
-            passed = FALSE;
+            m_bPassed = FALSE;
         }
         else
         {
@@ -112,20 +107,20 @@ static void prop_category_cb (GObject *pObject, GAsyncResult *pResult, void *pUs
     {
         g_warning ("Getting category failed: %s", pError->message);
         g_error_free (pError);
-        passed = FALSE;
-        check_propcount();
+        m_bPassed = FALSE;
+        checkPropCount ();
 
         return;
     }
 
-    check_propcount();
+    checkPropCount ();
 
     return;
 }
 
-static void prop_status_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
+static void onPropStatus (GObject *pObject, GAsyncResult *pResult, void *pData)
 {
-    propcount++;
+    m_nPropCount++;
     GError *pError = NULL;
     GVariant *pParams = g_dbus_proxy_call_finish (G_DBUS_PROXY (pObject), pResult, &pError);
 
@@ -139,7 +134,7 @@ static void prop_status_cb (GObject *pObject, GAsyncResult *pResult, void *pUser
         if (nComp)
         {
             g_debug ("Property status Returned: FAILED");
-            passed = FALSE;
+            m_bPassed = FALSE;
         }
         else
         {
@@ -153,20 +148,20 @@ static void prop_status_cb (GObject *pObject, GAsyncResult *pResult, void *pUser
     {
         g_warning ("Getting status failed: %s", pError->message);
         g_error_free (pError);
-        passed = FALSE;
-        check_propcount();
+        m_bPassed = FALSE;
+        checkPropCount ();
 
         return;
     }
 
-    check_propcount();
+    checkPropCount ();
 
     return;
 }
 
-static void prop_icon_name_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
+static void onPropIconName (GObject *pObject, GAsyncResult *pResult, void *pData)
 {
-    propcount++;
+    m_nPropCount++;
     GError *pError = NULL;
     GVariant *pParams = g_dbus_proxy_call_finish (G_DBUS_PROXY (pObject), pResult, &pError);
 
@@ -180,7 +175,7 @@ static void prop_icon_name_cb (GObject *pObject, GAsyncResult *pResult, void *pU
         if (nComp)
         {
             g_debug ("Property icon name Returned: FAILED");
-            passed = FALSE;
+            m_bPassed = FALSE;
         }
         else
         {
@@ -194,20 +189,20 @@ static void prop_icon_name_cb (GObject *pObject, GAsyncResult *pResult, void *pU
     {
         g_warning ("Getting icon name failed: %s", pError->message);
         g_error_free (pError);
-        passed = FALSE;
-        check_propcount();
+        m_bPassed = FALSE;
+        checkPropCount ();
 
         return;
     }
 
-    check_propcount();
+    checkPropCount ();
 
     return;
 }
 
-static void prop_attention_icon_name_cb (GObject *pObject, GAsyncResult *pResult, void *pUserata)
+static void onPropAttentionIconName (GObject *pObject, GAsyncResult *pResult, void *pData)
 {
-    propcount++;
+    m_nPropCount++;
     GError *pError = NULL;
     GVariant *pParams = g_dbus_proxy_call_finish (G_DBUS_PROXY (pObject), pResult, &pError);
 
@@ -221,7 +216,7 @@ static void prop_attention_icon_name_cb (GObject *pObject, GAsyncResult *pResult
         if (nComp)
         {
             g_debug ("Property attention icon name Returned: FAILED");
-            passed = FALSE;
+            m_bPassed = FALSE;
         }
         else
         {
@@ -235,27 +230,94 @@ static void prop_attention_icon_name_cb (GObject *pObject, GAsyncResult *pResult
     {
         g_warning ("Getting attention icon name failed: %s", pError->message);
         g_error_free (pError);
-        passed = FALSE;
-        check_propcount();
+        m_bPassed = FALSE;
+        checkPropCount ();
 
         return;
     }
 
-    check_propcount();
+    checkPropCount ();
 
     return;
 }
 
-gboolean
-kill_func (gpointer userdata)
+static void onPropTooltip (GObject *pObject, GAsyncResult *pResult, void *pData)
 {
-    g_main_loop_quit(mainloop);
-    g_warning("Forced to Kill");
-    passed = FALSE;
+    m_nPropCount++;
+    GError *pError = NULL;
+    GVariant *pParams = g_dbus_proxy_call_finish (G_DBUS_PROXY (pObject), pResult, &pError);
+
+    if (pParams)
+    {
+        gchar *sInterface = NULL;
+        gchar *sIcon = NULL;
+        gchar *sTitle = NULL;
+        gchar *sDescription = NULL;
+        g_variant_get (pParams, "(ssa(iiay)ss)", &sInterface, &sIcon, NULL, &sTitle, &sDescription);
+        gint nComp = g_strcmp0 (TEST_ICON_NAME, sIcon);
+
+        if (nComp)
+        {
+            g_debug ("Property tooltip icon name Returned: FAILED");
+            m_bPassed = FALSE;
+        }
+        else
+        {
+            g_debug ("Property tooltip icon name Returned: PASSED");
+        }
+
+        nComp = g_strcmp0 ("tooltip-title", sTitle);
+
+        if (nComp)
+        {
+            g_debug ("Property tooltip title Returned: FAILED");
+            m_bPassed = FALSE;
+        }
+        else
+        {
+            g_debug ("Property tooltip title Returned: PASSED");
+        }
+
+        nComp = g_strcmp0 ("tooltip-description", sDescription);
+
+        if (nComp)
+        {
+            g_debug ("Property tooltip description Returned: FAILED");
+            m_bPassed = FALSE;
+        }
+        else
+        {
+            g_debug ("Property tooltip description Returned: PASSED");
+        }
+
+        g_variant_unref (pParams);
+    }
+
+    if (pError)
+    {
+        g_warning ("Getting tooltip failed: %s", pError->message);
+        g_error_free (pError);
+        m_bPassed = FALSE;
+        checkPropCount ();
+
+        return;
+    }
+
+    checkPropCount ();
+
+    return;
+}
+
+gboolean onKill (gpointer pData)
+{
+    g_main_loop_quit (m_pMainLoop);
+    g_warning ("Forced to Kill");
+    m_bPassed = FALSE;
+
     return FALSE;
 }
 
-static GDBusMessage* dbus_filter (GDBusConnection *pConnection, GDBusMessage *pMessage, gboolean bIncoming, void *pUserData)
+static GDBusMessage* onDbusFilter (GDBusConnection *pConnection, GDBusMessage *pMessage, gboolean bIncoming, void *pData)
 {
     GDBusMessageType cType = g_dbus_message_get_message_type (pMessage);
     const gchar *sInterface = g_dbus_message_get_interface (pMessage);
@@ -275,8 +337,7 @@ static GDBusMessage* dbus_filter (GDBusConnection *pConnection, GDBusMessage *pM
     return pMessage;
 }
 
-gint
-main (gint argc, gchar * argv[])
+gint main (gint argc, gchar * argv[])
 {
     GError *pError = NULL;
     GDBusProxy *pProxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION, G_DBUS_PROXY_FLAGS_NONE, NULL, DBUS_SERVICE_DBUS, DBUS_PATH_DBUS, DBUS_INTERFACE_DBUS, NULL, &pError);
@@ -306,9 +367,9 @@ main (gint argc, gchar * argv[])
         return 1;
     }
 
-    g_dbus_connection_add_filter (pConnection, dbus_filter, NULL, NULL);
-    g_usleep(500000);
-    GDBusProxy *pProps = g_dbus_proxy_new_sync (pConnection, G_DBUS_PROXY_FLAGS_NONE, NULL, ":1.2", "/org/ayatana/NotificationItem/my_id", DBUS_INTERFACE_PROPERTIES, NULL, &pError);
+    g_dbus_connection_add_filter (pConnection, onDbusFilter, NULL, NULL);
+    g_usleep (500000);
+    GDBusProxy *pProps = g_dbus_proxy_new_sync (pConnection, G_DBUS_PROXY_FLAGS_NONE, NULL, ":1.2", "/org/ayatana/appindicator/my_id", DBUS_INTERFACE_PROPERTIES, NULL, &pError);
 
     if (pError != NULL)
     {
@@ -318,22 +379,28 @@ main (gint argc, gchar * argv[])
         return 1;
     }
 
-    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "Id"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) prop_id_cb, NULL);
-    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "Category"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) prop_category_cb, NULL);
-    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "Status"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) prop_status_cb, NULL);
-    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "IconName"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) prop_icon_name_cb, NULL);
-    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "AttentionIconName"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) prop_attention_icon_name_cb, NULL);
-    g_timeout_add_seconds(2, kill_func, NULL);
+    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "Id"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) onPropId, NULL);
+    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "Category"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) onPropCategory, NULL);
+    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "Status"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) onPropStatus, NULL);
+    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "IconName"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) onPropIconName, NULL);
+    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "AttentionIconName"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) onPropAttentionIconName, NULL);
+    g_dbus_proxy_call (pProps, "Get", g_variant_new ("(ss)", NOTIFICATION_ITEM_DBUS_IFACE, "ToolTip"), G_DBUS_CALL_FLAGS_NONE, -1, NULL, (GAsyncReadyCallback) onPropTooltip, NULL);
+    g_timeout_add_seconds (2, onKill, NULL);
+    m_pMainLoop = g_main_loop_new (NULL, FALSE);
+    g_main_loop_run (m_pMainLoop);
 
-    mainloop = g_main_loop_new(NULL, FALSE);
-    g_main_loop_run(mainloop);
+    if (m_bPassed)
+    {
+        g_debug ("Quiting");
 
-    if (passed) {
-        g_debug("Quiting");
         return 0;
-    } else {
-        g_debug("Quiting as we're a failure");
+    }
+    else
+    {
+        g_debug ("Quiting as we're a failure");
+
         return 1;
     }
+
     return 0;
 }

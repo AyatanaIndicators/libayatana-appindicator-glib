@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2024 Robert Tari <robert@tari.in>
+# SPDX-License-Identifier: CC0-1.0
+
+[library]
+description = "An object to put application information into the panel"
+authors = "Ayatana Indicators Development Team"
+license = "GPL-3.0-or-later"
+browse_url = "https://github.com/AyatanaIndicators/libayatana-appindicator"
+repository_url = "https://github.com/AyatanaIndicators/libayatana-appindicator.git"
+website_url = "https://ayatana-indicators.org"
+dependencies = ["GObject-2.0", "Gio-2.0"]
+version = "@PROJECT_VERSION@"
+
+[dependencies."GObject-2.0"]
+name = "GObject"
+description = "Base type system and object class"
+docs_url = "https://developer.gnome.org/gobject/stable"
+
+[dependencies."Gio-2.0"]
+name = "Gio"
+description = "High level library functionality"
+docs_url = "https://developer.gnome.org/gio/stable"

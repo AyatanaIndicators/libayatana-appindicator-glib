@@ -1,27 +1,17 @@
 # Marshaller definitions to be generated.
-# 
-# Copyright 2009 Canonical Ltd.
-# Copyright 2022 Robert Tari
-# 
-# Authors:
-#    Ted Gould <ted@canonical.com>
-#    Robert Tari <robert@tari.in>
-# 
-# This program is free software: you can redistribute it and/or modify it 
-# under the terms of the GNU General Public License version 3, as published 
+# Copyright 2009 Ted Gould <ted@canonical.com>
+# Copyright 2024 Robert Tari <robert@tari.in>
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
 # by the Free Software Foundation.
-# 
-# This program is distributed in the hope that it will be useful, but 
-# WITHOUT ANY WARRANTY; without even the implied warranties of 
-# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
 # PURPOSE.  See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along 
+#
+# You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-VOID: STRING, INT, STRING, STRING, STRING, STRING, STRING
-VOID: INT, STRING, STRING
-VOID: INT, STRING
 VOID: STRING, STRING
-VOID: BOOLEAN, STRING, OBJECT
 VOID: INT, UINT
-VOID: INT, INT

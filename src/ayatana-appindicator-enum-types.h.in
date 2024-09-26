@@ -1,5 +1,6 @@
-/*
- * Testing defines to be shared between various tests.
+/*** BEGIN file-header ***/
+/* An object to represent the application as an application indicator
+ * in the system panel.
  *
  * Copyright 2009 Ted Gould <ted@canonical.com>
  * Copyright 2024 Robert Tari <robert@tari.in>
@@ -17,9 +18,28 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define TEST_ID "my-id"
-#define TEST_ICON_NAME "my-icon-name"
-#define TEST_ATTENTION_ICON_NAME "my-attention-icon-name"
-#define TEST_STATE APP_INDICATOR_STATUS_ACTIVE
-#define TEST_STATE_S "Active"
-#define TEST_CATEGORY APP_INDICATOR_CATEGORY_APPLICATION_STATUS
+#ifndef __APP_INDICATOR_ENUM_TYPES_H__
+#define __APP_INDICATOR_ENUM_TYPES_H__
+
+#include <glib-object.h>
+
+G_BEGIN_DECLS
+
+/*** END file-header ***/
+
+/*** BEGIN file-tail ***/
+
+G_END_DECLS
+
+#endif /* __APP_INDICATOR_ENUM_TYPES_H__ */
+/*** END file-tail ***/
+
+/*** BEGIN file-production ***/
+/* Enumerations from file: "@basename@" */
+/*** END file-production ***/
+
+/*** BEGIN value-header ***/
+GType @enum_name@_get_type (void) G_GNUC_CONST;
+#define APP_INDICATOR_TYPE_@ENUMSHORT@ (@enum_name@_get_type())
+
+/*** END value-header ***/
