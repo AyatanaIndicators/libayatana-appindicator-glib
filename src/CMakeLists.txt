@@ -151,7 +151,7 @@ add_custom_command(
     --warn-all
     --include=GObject-2.0
     --include=${gtk_girver}
-    --library-path=${CMAKE_CURRENT_BINARY_DIR}
+    --library-path=${CMAKE_INSTALL_FULL_LIBDIR}
     --library="${ayatana_appindicator_gtkver}"
     --output "${CMAKE_CURRENT_BINARY_DIR}/${ayatana_appindicator_girver}-0.1.gir"
 )
@@ -165,7 +165,7 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND
     ${INTROSPECTION_COMPILER}
-    --includedir=${CMAKE_CURRENT_BINARY_DIR}
+    --includedir=${CMAKE_INSTALL_FULL_LIBDIR}
     ${CMAKE_CURRENT_BINARY_DIR}/${ayatana_appindicator_girver}-0.1.gir
     -o "${CMAKE_CURRENT_BINARY_DIR}/${ayatana_appindicator_girver}-0.1.typelib"
 )
