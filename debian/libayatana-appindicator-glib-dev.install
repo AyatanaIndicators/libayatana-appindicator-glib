@@ -1,0 +1,6 @@
+usr/include/libayatana-appindicator-glib/*
+usr/lib/*/libayatana-appindicator-glib.so
+usr/lib/*/pkgconfig/ayatana-appindicator-glib.pc
+usr/share/gir-1.0/AyatanaAppIndicatorGlib-2.0.gir
+usr/share/vala/vapi/ayatana-appindicator-glib.deps
+usr/share/vala/vapi/ayatana-appindicator-glib.vapi
