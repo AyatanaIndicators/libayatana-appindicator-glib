@@ -1,6 +1,0 @@
-{
-    global: app_indicator_*;
-    local:  _notification_*;
-            _generate_id;
-            _application_service_marshal_*;
-};

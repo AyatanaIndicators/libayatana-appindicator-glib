@@ -1,89 +1,82 @@
 /*
-Tests for the libappindicator library that are over DBus.  This is
-the server side of those tests.
+ * Tests for the libappindicator library that are over DBus. This is
+ * the server side of those tests.
+ *
+ * Copyright 2009 Ted Gould <ted@canonical.com>
+ * Copyright 2023-2024 Robert Tari <robert@tari.in>
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 3, as published
+ * by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright 2009 Canonical Ltd.
-Copyright 2023 Robert Tari
+#include <ayatana-appindicator.h>
 
-Authors:
-    Ted Gould <ted@canonical.com>
-    Robert Tari <robert@tari.in>
+static GMainLoop *m_pMainLoop = NULL;
+static gboolean m_bActive = FALSE;
+static guint m_nToggleCount = 0;
+static GDBusConnection *m_pConnection = NULL;
 
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License version 3, as published
-by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranties of
-MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include <stdlib.h>
-#include <glib.h>
-#include <app-indicator.h>
-
-static GMainLoop * mainloop = NULL;
-static gboolean active = FALSE;
-static guint toggle_count = 0;
-static GDBusConnection * connection = NULL;
-
-static gboolean
-times_up (gpointer unused G_GNUC_UNUSED)
+static gboolean onTimeUp (gpointer pData)
 {
-    g_dbus_connection_flush_sync (connection, NULL, NULL);
-    g_clear_object (&connection);
+    g_dbus_connection_flush_sync (m_pConnection, NULL, NULL);
+    g_clear_object (&m_pConnection);
+    g_main_loop_quit (m_pMainLoop);
 
-    g_main_loop_quit (mainloop);
     return G_SOURCE_REMOVE;
 }
 
-gboolean
-toggle (gpointer userdata)
+gboolean toggle (gpointer pData)
 {
-    const AppIndicatorStatus new_status = active ? APP_INDICATOR_STATUS_ATTENTION
-                                                 : APP_INDICATOR_STATUS_ACTIVE;
-    app_indicator_set_status (APP_INDICATOR(userdata), new_status);
-    ++toggle_count;
-    active = !active;
+    const AppIndicatorStatus nStatus = m_bActive ? APP_INDICATOR_STATUS_ATTENTION : APP_INDICATOR_STATUS_ACTIVE;
+    app_indicator_set_status (APP_INDICATOR (pData), nStatus);
+    ++m_nToggleCount;
+    m_bActive = !m_bActive;
 
-    if (toggle_count == 100) {
-        g_timeout_add (100, times_up, NULL);
+    if (m_nToggleCount == 100)
+    {
+        g_timeout_add (100, onTimeUp, NULL);
+
         return G_SOURCE_REMOVE;
     }
 
     return G_SOURCE_CONTINUE;
 }
 
-gint
-main (gint argc, gchar * argv[])
+gint main (gint argc, gchar * argv[])
 {
-    gtk_init(&argc, &argv);
-
     g_usleep(100000);
+    m_pConnection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+    g_debug ("DBus Name: %s", g_dbus_connection_get_unique_name (m_pConnection));
 
-    connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-    g_debug("DBus Name: %s", g_dbus_connection_get_unique_name (connection));
+    AppIndicator *pIndicator = app_indicator_new ("my-id", "my-icon-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    app_indicator_set_attention_icon (pIndicator, "my-attention-icon", NULL);
 
-    AppIndicator * ci = app_indicator_new ("my-id", "my-icon-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-    app_indicator_set_attention_icon_full (ci, "my-attention-icon", NULL);
+    GSimpleActionGroup *pActions = g_simple_action_group_new ();
+    GSimpleAction *pSimpleAction = g_simple_action_new ("test", NULL);
+    g_action_map_add_action (G_ACTION_MAP (pActions), G_ACTION (pSimpleAction));
+    g_object_unref (pSimpleAction);
+    GMenu *pMenu = g_menu_new ();
+    GMenuItem *pItem = g_menu_item_new ("Test", "indicator.test");
+    g_menu_append_item (pMenu, pItem);
+    g_object_unref (pItem);
 
-    GtkMenu * menu = GTK_MENU(gtk_menu_new());
-    GtkMenuItem * item = GTK_MENU_ITEM(gtk_menu_item_new_with_label("Label"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), GTK_WIDGET(item));
-
-    app_indicator_set_menu(ci, menu);
-
-    g_timeout_add(50, toggle, ci);
-
-    mainloop = g_main_loop_new(NULL, FALSE);
-    g_main_loop_run(mainloop);
-
-    g_object_unref(G_OBJECT(ci));
+    app_indicator_set_menu (pIndicator, pMenu);
+    g_object_unref (pMenu);
+    app_indicator_set_actions (pIndicator, pActions);
+    g_object_unref (pActions);
+    g_timeout_add (50, toggle, pIndicator);
+    m_pMainLoop = g_main_loop_new (NULL, FALSE);
+    g_main_loop_run (m_pMainLoop);
+    g_object_unref (G_OBJECT (pIndicator));
 
     g_debug("Quiting");
 

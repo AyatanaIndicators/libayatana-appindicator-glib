@@ -1,2 +1,0 @@
-#!/bin/sh
-MONO_PATH=@CMAKE_BINARY_DIR@/bindings/mono @CMAKE_CURRENT_BINARY_DIR@/AyatanaIndicatorExample.exe

@@ -1,51 +1,50 @@
 /*
-Test that creates a small test app which links with libappindicator.
+ * Test that creates a small test app which links with libappindicator.
+ *
+ * Copyright 2009 Ted Gould <ted@canonical.com>
+ * Copyright 2022-2024 Robert Tari <robert@tari.in>
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 3, as published
+ * by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright 2009 Canonical Ltd.
+#include <ayatana-appindicator.h>
 
-Authors:
-    Ted Gould <ted@canonical.com>
+static GMainLoop *pMainLoop = NULL;
 
-This program is free software: you can redistribute it and/or modify it 
-under the terms of the GNU General Public License version 3, as published 
-by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but 
-WITHOUT ANY WARRANTY; without even the implied warranties of 
-MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR 
-PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along 
-with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#include <glib.h>
-#include <app-indicator.h>
-
-static GMainLoop * mainloop = NULL;
-
-int
-main (int argc, char ** argv)
+int main (int argc, char ** argv)
 {
-	gtk_init(&argc, &argv);
-	GtkWidget *menu_item = gtk_menu_item_new_with_label("Test");
-	GtkMenu *menu = GTK_MENU(gtk_menu_new());
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-	gtk_widget_show(menu_item);
+    GSimpleActionGroup *pActions = g_simple_action_group_new ();
+    GSimpleAction *pSimpleAction = g_simple_action_new ("test", NULL);
+    g_action_map_add_action (G_ACTION_MAP (pActions), G_ACTION (pSimpleAction));
+    g_object_unref (pSimpleAction);
+    GMenu *pMenu = g_menu_new ();
+    GMenuItem *pItem = g_menu_item_new ("Test", "indicator.test");
+    g_menu_append_item (pMenu, pItem);
+    g_object_unref (pItem);
 
-	AppIndicator * ci = app_indicator_new("test-application",
-	                                      "system-shutdown",
-	                                      APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-	app_indicator_set_status(ci, APP_INDICATOR_STATUS_ACTIVE);
-	app_indicator_set_menu(ci, menu);
+    AppIndicator *pIndicator = app_indicator_new ("test-application", "system-shutdown", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_ACTIVE);
+    app_indicator_set_menu (pIndicator, pMenu);
+    g_object_unref (pMenu);
+    app_indicator_set_actions (pIndicator, pActions);
+    g_object_unref (pActions);
 
-	mainloop = g_main_loop_new(NULL, FALSE);
-	g_main_loop_run(mainloop);
+    pMainLoop = g_main_loop_new (NULL, FALSE);
+    g_main_loop_run (pMainLoop);
 
-	g_object_unref(G_OBJECT(ci));
-	g_object_unref(G_OBJECT(menu));
-	g_object_unref(G_OBJECT(menu_item));
-	g_debug("Quiting");
+    g_object_unref (G_OBJECT (pIndicator));
 
-	return 0;
+    g_debug("Quiting");
+
+    return 0;
 }

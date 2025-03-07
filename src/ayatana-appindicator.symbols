@@ -1,0 +1,4 @@
+{
+    global: app_indicator_*;
+    local:  _application_*;
+};

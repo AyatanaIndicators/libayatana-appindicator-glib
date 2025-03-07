@@ -1,114 +1,60 @@
-cmake_minimum_required(VERSION 3.13)
-project(libayatana-appindicator C)
+cmake_minimum_required (VERSION 3.13)
+project (libayatana-appindicator VERSION 2.0.0 LANGUAGES C)
 
-set(PROJECT_VERSION "0.5.93")
-set(PROJECT_NAME "libayatana-appindicator")
-
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    SET(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
-endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    SET (CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)
+endif (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 # Options
 
-option(ENABLE_TESTS "Enable all tests and checks" OFF)
-option(ENABLE_COVERAGE "Enable coverage reports (includes enabling all tests and checks)" OFF)
-option(ENABLE_WERROR "Treat all build warnings as errors" OFF)
-option(ENABLE_GTKDOC "Enable building GTK documentation" ON)
-option(ENABLE_BINDINGS_VALA "Enable Vala bindings (GTK+-3.0 and beyond only)" ON)
-option(ENABLE_BINDINGS_MONO "Enable Mono bindings" ON)
+option (ENABLE_TESTS "Enable all tests and checks" OFF)
+option (ENABLE_WERROR "Treat all build warnings as errors" OFF)
+option (ENABLE_COVERAGE "Enable coverage reports (enables all tests and checks)" OFF)
 
-if(ENABLE_COVERAGE)
-    set(ENABLE_TESTS ON)
-    set(CMAKE_BUILD_TYPE "Coverage")
+if (ENABLE_COVERAGE)
+    set (ENABLE_TESTS ON)
+    set (CMAKE_BUILD_TYPE "Coverage")
 else()
-    set(CMAKE_BUILD_TYPE "Release")
+    set (CMAKE_BUILD_TYPE "Release")
 endif()
 
-if(ENABLE_WERROR)
-    add_definitions("-Werror")
-endif()
+if (ENABLE_WERROR)
+    add_definitions ("-Werror")
+endif ()
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    add_definitions("-Weverything")
-else()
-    add_definitions("-Wall")
-endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_definitions ("-Weverything")
+else ()
+    add_definitions ("-Wall")
+endif ()
 
-# Check for prerequisites
+# Prerequisites
 
-option(FLAVOUR_GTK2 "Build against GTK+-2.0" OFF)
-option(FLAVOUR_GTK3 "Build against GTK+-3.0" ON)
+include (GNUInstallDirs)
+find_package (PkgConfig REQUIRED)
+pkg_check_modules (DEPS REQUIRED gio-2.0 gobject-2.0)
 
-if (FLAVOUR_GTK2)
-    set (FLAVOUR_GTK3 OFF)
-endif()
-if (FLAVOUR_GTK3)
-    set (FLAVOUR_GTK2 OFF)
-endif()
+# Build
 
-set(DEPS glib-2.0>=2.58)
-
-if (FLAVOUR_GTK3)
-    set(DEPS
-        ${DEPS}
-        ayatana-indicator3-0.4>=0.8.4
-        gtk+-3.0>=3.24
-        dbusmenu-gtk3-0.4
-    )
-elseif (FLAVOUR_GTK2)
-    set(DEPS
-        ${DEPS}
-        ayatana-indicator-0.4>=0.8.4
-        gtk+-2.0>=2.18
-        dbusmenu-gtk-0.4
-    )
-endif()
-
-include(GNUInstallDirs)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PROJECT_DEPS REQUIRED ${DEPS})
-
-if (ENABLE_GTKDOC)
-    find_program (GTKDOC "gtkdoc-scan")
-    if (NOT GTKDOC)
-        message(WARNING "Building the gtk-doc API documentation is enabled, but the gtkdoc-scan executable has not been found.  Disabling API documentation building, although requested.")
-        set (ENABLE_GTKDOC OFF)
-    endif()
-endif()
-
-# Make everything
-
-add_subdirectory(src)
-add_subdirectory(bindings)
-if (ENABLE_GTKDOC)
-    add_subdirectory(docs)
-endif()
+add_subdirectory (src)
+add_subdirectory (bindings)
+add_subdirectory (doc)
 
 if (ENABLE_TESTS)
+    include (CTest)
+    enable_testing ()
+    add_subdirectory (tests)
+    add_subdirectory (examples)
 
-    include(CTest)
-    enable_testing()
-    add_subdirectory(tests)
-    add_subdirectory(example)
+    if (ENABLE_COVERAGE)
+        find_package (CoverageReport)
+        ENABLE_COVERAGE_REPORT (TARGETS "ayatana-appindicator" TESTS "test-libappindicator" "test-libappindicator-dbus-client" "test-libappindicator-dbus-server" "test-libappindicator-status-client" "test-libappindicator-status-server" FILTER /usr/include ${CMAKE_BINARY_DIR}/*)
+    endif ()
+endif ()
 
-    if(ENABLE_COVERAGE)
+# Info
 
-        find_package(CoverageReport)
-        ENABLE_COVERAGE_REPORT(TARGETS "ayatana-appindicator3" TESTS "test-libappindicator" "test-libappindicator-dbus-client" "test-libappindicator-dbus-server" "test-libappindicator-status-client" "test-libappindicator-status-server" "test-libappindicator-fallback-item" "test-libappindicator-fallback-watcher" FILTER /usr/include ${CMAKE_BINARY_DIR}/*)
+message (STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
+message (STATUS "Build with -Werror: ${ENABLE_WERROR}")
+message (STATUS "Unit tests: ${ENABLE_TESTS}")
 
-    endif()
-
-endif()
-
-# Display config info
-
-message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "GTK+-3.0 build: ${FLAVOUR_GTK3}")
-message(STATUS "GTK+-2.0 build: ${FLAVOUR_GTK2}")
-message(STATUS "Vala bindings: ${ENABLE_BINDINGS_VALA}")
-message(STATUS "Mono bindings: ${ENABLE_BINDINGS_MONO}")
-message(STATUS "Unit tests: ${ENABLE_TESTS}")
-message(STATUS "Build with -Werror: ${ENABLE_WERROR}")
-message(STATUS "API Documentation: ${ENABLE_GTKDOC}")

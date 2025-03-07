@@ -1,475 +1,377 @@
 /*
-Tests for the libappindicator library.
+ * Tests for the libappindicator library.
+ *
+ * Copyright 2009 Ted Gould <ted@canonical.com>
+ * Copyright 2023-2024 Robert Tari <robert@tari.in>
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 3, as published
+ * by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranties of
+ * MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-Copyright 2009 Canonical Ltd.
-Copyright 2023 Robert Tari
+#include <ayatana-appindicator.h>
 
-Authors:
-    Ted Gould <ted@canonical.com>
-    Robert Tari <robert@tari.in>
-
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License version 3, as published
-by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranties of
-MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
-#include <glib.h>
-#include <glib-object.h>
-
-#include <app-indicator.h>
-
-#include <libdbusmenu-glib/menuitem.h>
-#include <libdbusmenu-glib/server.h>
-
-static gboolean
-allow_warnings (const gchar *log_domain, GLogLevelFlags log_level,
-                const gchar *message, gpointer user_data)
+void onStatus (AppIndicator *pIndicator, gchar *sStatus, gboolean *bActivated)
 {
-    // By default, gtest will fail a test on even a warning message.
-    // But since some of our sub-libraries are noisy (especially at-spi2),
-    // only fail on critical or worse.
-    return ((log_level & G_LOG_LEVEL_MASK) <= G_LOG_LEVEL_CRITICAL);
+    *bActivated = TRUE;
 }
 
-void
-test_libappindicator_prop_signals_status_helper (AppIndicator * ci, gchar * status, gboolean * signalactivated)
+void onSignal (AppIndicator *pIndicator, gboolean *bActivated)
 {
-    *signalactivated = TRUE;
-    return;
+    *bActivated = TRUE;
 }
 
-void
-test_libappindicator_prop_signals_helper (AppIndicator * ci, gboolean * signalactivated)
+void propSignals ()
 {
-    *signalactivated = TRUE;
-    return;
+    AppIndicator *pIndicator = app_indicator_new ("test-app-indicator", "indicator-messages", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+
+    g_assert (pIndicator != NULL);
+
+    gboolean bSignaled = FALSE;
+    gulong nHandler = 0;
+    nHandler = g_signal_connect (G_OBJECT (pIndicator), "new-icon", G_CALLBACK (onSignal), &bSignaled);
+
+    g_assert (nHandler != 0);
+
+    nHandler = g_signal_connect (G_OBJECT (pIndicator), "new-attention-icon", G_CALLBACK (onSignal), &bSignaled);
+
+    g_assert (nHandler != 0);
+
+    nHandler = g_signal_connect (G_OBJECT (pIndicator), "new-status", G_CALLBACK (onStatus), &bSignaled);
+
+    g_assert (nHandler != 0);
+
+    bSignaled = FALSE;
+    app_indicator_set_icon (pIndicator, "bob", NULL);
+
+    g_assert (bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_icon (pIndicator, "bob", NULL);
+
+    g_assert (!bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_icon (pIndicator, "al", NULL);
+
+    g_assert (bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_attention_icon (pIndicator, "bob", NULL);
+
+    g_assert (bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_attention_icon (pIndicator, "bob", NULL);
+
+    g_assert (!bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_attention_icon (pIndicator, "al", NULL);
+
+    g_assert (bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_PASSIVE);
+
+    g_assert (!bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_ACTIVE);
+
+    g_assert (bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_ACTIVE);
+
+    g_assert(!bSignaled);
+
+    bSignaled = FALSE;
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_ATTENTION);
+
+    g_assert (bSignaled);
 }
 
-void
-test_libappindicator_prop_signals (void)
+void initSetProps ()
 {
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
+    AppIndicator *pIndicator = app_indicator_new ("my-id", "my-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    g_assert (pIndicator != NULL);
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_ACTIVE);
+    app_indicator_set_attention_icon (pIndicator, "my-attention-name", NULL);
+    app_indicator_set_title (pIndicator, "My Title");
+    const gchar *sId = app_indicator_get_id (pIndicator);
+    gint nCompare = g_strcmp0 ("my-id", sId);
 
-        AppIndicator * ci = app_indicator_new ("test-app-indicator",
-                                               "indicator-messages",
-                                               APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    g_assert (!nCompare);
 
-    g_assert(ci != NULL);
+    const gchar *sIcon = app_indicator_get_icon (pIndicator);
+    nCompare = g_strcmp0 ("my-name", sIcon);
 
-    gboolean signaled = FALSE;
-    gulong handlerid;
+    g_assert (!nCompare);
 
-    handlerid = g_signal_connect(G_OBJECT(ci), "new-icon", G_CALLBACK(test_libappindicator_prop_signals_helper), &signaled);
-    g_assert(handlerid != 0);
+    const gchar *sAttentionIcon = app_indicator_get_attention_icon (pIndicator);
+    nCompare = g_strcmp0 ("my-attention-name", sAttentionIcon);
 
-    handlerid = g_signal_connect(G_OBJECT(ci), "new-attention-icon", G_CALLBACK(test_libappindicator_prop_signals_helper), &signaled);
-    g_assert(handlerid != 0);
+    g_assert (!nCompare);
 
-    handlerid = g_signal_connect(G_OBJECT(ci), "new-status", G_CALLBACK(test_libappindicator_prop_signals_status_helper), &signaled);
-    g_assert(handlerid != 0);
+    const gchar *sTitle = app_indicator_get_title (pIndicator);
+    nCompare = g_strcmp0 ("My Title", sTitle);
 
+    g_assert (!nCompare);
 
-    signaled = FALSE;
-    app_indicator_set_icon_full (ci, "bob", NULL);
-    g_assert(signaled);
+    AppIndicatorStatus nStatus = app_indicator_get_status (pIndicator);
 
-    signaled = FALSE;
-    app_indicator_set_icon_full (ci, "bob", NULL);
-    g_assert(!signaled);
+    g_assert (nStatus == APP_INDICATOR_STATUS_ACTIVE);
 
-    signaled = FALSE;
-    app_indicator_set_icon_full (ci, "al", NULL);
-    g_assert(signaled);
+    AppIndicatorCategory nCategory = app_indicator_get_category (pIndicator);
 
+    g_assert (nCategory == APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 
-    signaled = FALSE;
-    app_indicator_set_attention_icon_full (ci, "bob", NULL);
-    g_assert(signaled);
-
-    signaled = FALSE;
-    app_indicator_set_attention_icon_full (ci, "bob", NULL);
-    g_assert(!signaled);
-
-    signaled = FALSE;
-    app_indicator_set_attention_icon_full (ci, "al", NULL);
-    g_assert(signaled);
-
-
-    signaled = FALSE;
-    app_indicator_set_status(ci, APP_INDICATOR_STATUS_PASSIVE);
-    g_assert(!signaled);
-
-    signaled = FALSE;
-    app_indicator_set_status(ci, APP_INDICATOR_STATUS_ACTIVE);
-    g_assert(signaled);
-
-    signaled = FALSE;
-    app_indicator_set_status(ci, APP_INDICATOR_STATUS_ACTIVE);
-    g_assert(!signaled);
-
-    signaled = FALSE;
-    app_indicator_set_status(ci, APP_INDICATOR_STATUS_ATTENTION);
-    g_assert(signaled);
-
-    return;
+    g_object_unref (G_OBJECT (pIndicator));
 }
 
-void
-test_libappindicator_init_set_props (void)
+void initProps ()
 {
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
+    AppIndicator *pIndicator = app_indicator_new ("my-id", "my-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    app_indicator_set_status (pIndicator, APP_INDICATOR_STATUS_ACTIVE);
+    app_indicator_set_attention_icon (pIndicator, "my-attention-name", NULL);
 
-        AppIndicator * ci = app_indicator_new ("my-id",
-                                               "my-name",
-                                               APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    g_assert (pIndicator != NULL);
 
-    g_assert(ci != NULL);
+    const gchar *sId = app_indicator_get_id (pIndicator);
+    gint nCompare = g_strcmp0 ("my-id", sId);
 
-    app_indicator_set_status(ci, APP_INDICATOR_STATUS_ACTIVE);
-    app_indicator_set_attention_icon_full (ci, "my-attention-name", NULL);
-    app_indicator_set_title(ci, "My Title");
+    g_assert (!nCompare);
 
-    g_assert(!g_strcmp0("my-id", app_indicator_get_id(ci)));
-    g_assert(!g_strcmp0("my-name", app_indicator_get_icon(ci)));
-    g_assert(!g_strcmp0("my-attention-name", app_indicator_get_attention_icon(ci)));
-    g_assert(!g_strcmp0("My Title", app_indicator_get_title(ci)));
-    g_assert(app_indicator_get_status(ci) == APP_INDICATOR_STATUS_ACTIVE);
-    g_assert(app_indicator_get_category(ci) == APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    const gchar *sIcon = app_indicator_get_icon (pIndicator);
+    nCompare = g_strcmp0 ("my-name", sIcon);
 
-    g_object_unref(G_OBJECT(ci));
-    return;
+    g_assert (!nCompare);
+
+    const gchar *sAttentionIcon = app_indicator_get_attention_icon (pIndicator);
+    nCompare = g_strcmp0 ("my-attention-name", sAttentionIcon);
+
+    g_assert (!nCompare);
+
+    AppIndicatorStatus nStatus = app_indicator_get_status (pIndicator);
+
+    g_assert (nStatus == APP_INDICATOR_STATUS_ACTIVE);
+
+    AppIndicatorCategory nCategory = app_indicator_get_category (pIndicator);
+
+    g_assert (nCategory == APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+
+    g_object_unref (G_OBJECT (pIndicator));
 }
 
-void
-test_libappindicator_init_with_props (void)
+void init ()
 {
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
+    AppIndicator *pIndicator = app_indicator_new ("my-id", "my-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 
-        AppIndicator * ci = app_indicator_new ("my-id",
-                                               "my-name",
-                                               APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    g_assert (pIndicator != NULL);
 
-        app_indicator_set_status (ci, APP_INDICATOR_STATUS_ACTIVE);
-        app_indicator_set_attention_icon_full (ci, "my-attention-name", NULL);
-
-    g_assert(ci != NULL);
-
-    g_assert(!g_strcmp0("my-id", app_indicator_get_id(ci)));
-    g_assert(!g_strcmp0("my-name", app_indicator_get_icon(ci)));
-    g_assert(!g_strcmp0("my-attention-name", app_indicator_get_attention_icon(ci)));
-    g_assert(app_indicator_get_status(ci) == APP_INDICATOR_STATUS_ACTIVE);
-    g_assert(app_indicator_get_category(ci) == APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-
-    g_object_unref(G_OBJECT(ci));
-    return;
+    g_object_unref (G_OBJECT (pIndicator));
 }
 
-void
-test_libappindicator_init (void)
+void setLabel ()
 {
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
+    AppIndicator *pIndicator = app_indicator_new ("my-id", "my-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 
-        AppIndicator * ci = app_indicator_new ("my-id", "my-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-    g_assert(ci != NULL);
-    g_object_unref(G_OBJECT(ci));
-    return;
+    g_assert (pIndicator != NULL);
+
+    const gchar *sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    const gchar *sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert (sLabelGuide == NULL);
+
+    // First check all the clearing modes, this is important as we're going to use them later, we need them to work.
+    app_indicator_set_label (pIndicator, NULL, NULL);
+    sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert (sLabelGuide == NULL);
+
+    app_indicator_set_label (pIndicator, "", NULL);
+    sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert (sLabelGuide == NULL);
+
+    app_indicator_set_label (pIndicator, NULL, "");
+    sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert (sLabelGuide == NULL);
+
+    app_indicator_set_label (pIndicator, "", "");
+    sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert(sLabelGuide == NULL);
+
+    app_indicator_set_label (pIndicator, "label", "");
+
+    sLabel = app_indicator_get_label (pIndicator);
+    gint nCompare = g_strcmp0 (sLabel, "label");
+
+    g_assert (nCompare == 0);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert (sLabelGuide == NULL);
+
+    app_indicator_set_label (pIndicator, NULL, NULL);
+    sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert(sLabelGuide == NULL);
+
+    app_indicator_set_label (pIndicator, "label", "guide");
+
+    sLabel = app_indicator_get_label (pIndicator);
+    nCompare = g_strcmp0 (sLabel, "label");
+
+    g_assert (nCompare == 0);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+    nCompare = g_strcmp0 (sLabelGuide, "guide");
+
+    g_assert (nCompare == 0);
+
+    app_indicator_set_label (pIndicator, "label2", "guide");
+
+    sLabel = app_indicator_get_label (pIndicator);
+    nCompare = g_strcmp0 (sLabel, "label2");
+
+    g_assert (nCompare == 0);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+    nCompare = g_strcmp0 (sLabelGuide, "guide");
+
+    g_assert (nCompare == 0);
+
+    app_indicator_set_label (pIndicator, "trick-label", "trick-guide");
+
+    sLabel = app_indicator_get_label (pIndicator);
+    nCompare = g_strcmp0 (sLabel, "trick-label");
+
+    g_assert (nCompare == 0);
+
+    sLabelGuide = app_indicator_get_label_guide (pIndicator);
+    nCompare = g_strcmp0 (sLabelGuide, "trick-guide");
+
+    g_assert (nCompare == 0);
+
+    g_object_unref (G_OBJECT (pIndicator));
 }
 
-void
-test_libappindicator_set_label (void)
+void onLabelSignals (AppIndicator *pIndicator, gchar *sLabel, gchar *sGuide, gpointer pData)
 {
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
-
-    AppIndicator * ci = app_indicator_new ("my-id",
-                                           "my-name",
-                                           APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-
-    g_assert(ci != NULL);
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    /* First check all the clearing modes, this is important as
-       we're going to use them later, we need them to work. */
-    app_indicator_set_label(ci, NULL, NULL);
-
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_set_label(ci, "", NULL);
-
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_set_label(ci, NULL, "");
-
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_set_label(ci, "", "");
-
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_set_label(ci, "label", "");
-
-    g_assert(g_strcmp0(app_indicator_get_label(ci), "label") == 0);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_set_label(ci, NULL, NULL);
-
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_set_label(ci, "label", "guide");
-
-    g_assert(g_strcmp0(app_indicator_get_label(ci), "label") == 0);
-    g_assert(g_strcmp0(app_indicator_get_label_guide(ci), "guide") == 0);
-
-    app_indicator_set_label(ci, "label2", "guide");
-
-    g_assert(g_strcmp0(app_indicator_get_label(ci), "label2") == 0);
-    g_assert(g_strcmp0(app_indicator_get_label_guide(ci), "guide") == 0);
-
-    app_indicator_set_label(ci, "trick-label", "trick-guide");
-
-    g_assert(g_strcmp0(app_indicator_get_label(ci), "trick-label") == 0);
-    g_assert(g_strcmp0(app_indicator_get_label_guide(ci), "trick-guide") == 0);
-
-    g_object_unref(G_OBJECT(ci));
-    return;
+    gint *nCount = (gint*) pData;
+    (*nCount)++;
 }
 
-void
-test_libappindicator_set_menu (void)
+void labelSignalsCheck ()
 {
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
-
-    AppIndicator * ci = app_indicator_new ("my-id",
-                                           "my-name",
-                                           APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-
-    g_assert(ci != NULL);
-
-    GtkMenu * menu = GTK_MENU(gtk_menu_new());
-
-    GtkMenuItem * item = GTK_MENU_ITEM(gtk_menu_item_new_with_label("Test Label"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), GTK_WIDGET(item));
-    gtk_widget_show(GTK_WIDGET(item));
-
-    app_indicator_set_menu(ci, menu);
-
-    g_assert(app_indicator_get_menu(ci) != NULL);
-
-    GValue serverval = {0};
-    g_value_init(&serverval, DBUSMENU_TYPE_SERVER);
-    g_object_get_property(G_OBJECT(ci), "dbus-menu-server", &serverval);
-
-    DbusmenuServer * server = DBUSMENU_SERVER(g_value_get_object(&serverval));
-    g_assert(server != NULL);
-
-    GValue rootval = {0};
-    g_value_init(&rootval, DBUSMENU_TYPE_MENUITEM);
-    g_object_get_property(G_OBJECT(server), DBUSMENU_SERVER_PROP_ROOT_NODE, &rootval);
-    DbusmenuMenuitem * root = DBUSMENU_MENUITEM(g_value_get_object(&rootval));
-    g_assert(root != NULL);
-
-    GList * children = dbusmenu_menuitem_get_children(root);
-    g_assert(children != NULL);
-    g_assert(g_list_length(children) == 1);
-
-    const gchar * label = dbusmenu_menuitem_property_get(DBUSMENU_MENUITEM(children->data), DBUSMENU_MENUITEM_PROP_LABEL);
-    g_assert(label != NULL);
-    g_assert(g_strcmp0(label, "Test Label") == 0);
-
-    /* Interesting, eh?  We need this because we send out events on the bus
-       but they don't come back until the idle is run.  So we need those
-       events to clear before removing the object */
-    while (g_main_context_pending(NULL)) {
-        g_main_context_iteration(NULL, TRUE);
+    while (g_main_context_pending (NULL))
+    {
+        g_main_context_iteration (NULL, TRUE);
     }
-
-    g_object_unref(G_OBJECT(ci));
-    return;
 }
 
-void
-label_signals_cb (AppIndicator * appindicator, gchar * label, gchar * guide, gpointer user_data)
+void labelSignals ()
 {
-    gint * label_signals_count = (gint *)user_data;
-    (*label_signals_count)++;
-    return;
+    gint nLabelSignals = 0;
+    AppIndicator *pIndicator = app_indicator_new ("my-id", "my-name", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+
+    g_assert (pIndicator != NULL);
+
+    const gchar *sLabel = app_indicator_get_label (pIndicator);
+
+    g_assert (sLabel == NULL);
+
+    const gchar *sLabelGuide = app_indicator_get_label_guide (pIndicator);
+
+    g_assert (sLabelGuide == NULL);
+
+    g_signal_connect (G_OBJECT (pIndicator), "new-label", G_CALLBACK (onLabelSignals), &nLabelSignals);
+
+    // Shouldn't be a signal as it should be stuck in idle
+    app_indicator_set_label (pIndicator, "label", "guide");
+
+    g_assert (nLabelSignals == 0);
+
+    // Should show up after idle processing
+    labelSignalsCheck ();
+    g_assert (nLabelSignals == 1);
+
+    // Shouldn't signal with no change
+    nLabelSignals = 0;
+    app_indicator_set_label (pIndicator, "label", "guide");
+    labelSignalsCheck ();
+
+    g_assert (nLabelSignals == 0);
+
+    // Change one, we should get one signal
+    app_indicator_set_label (pIndicator, "label2", "guide");
+    labelSignalsCheck ();
+
+    g_assert (nLabelSignals == 1);
+
+    // Change several times, one signal
+    nLabelSignals = 0;
+    app_indicator_set_label (pIndicator, "label1", "guide0");
+    app_indicator_set_label (pIndicator, "label1", "guide1");
+    app_indicator_set_label (pIndicator, "label2", "guide2");
+    app_indicator_set_label (pIndicator, "label3", "guide3");
+    labelSignalsCheck ();
+
+    g_assert (nLabelSignals == 1);
+
+    // Clear should signal too
+    nLabelSignals = 0;
+    app_indicator_set_label (pIndicator, NULL, NULL);
+    labelSignalsCheck ();
+
+    g_assert (nLabelSignals == 1);
 }
 
-void
-label_signals_check (void)
+gint main (gint argc, gchar * argv[])
 {
-    while (g_main_context_pending(NULL)) {
-        g_main_context_iteration(NULL, TRUE);
-    }
+    g_test_init (&argc, &argv, NULL);
 
-    return;
-}
-
-void
-test_libappindicator_label_signals (void)
-{
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
-
-    gint label_signals_count = 0;
-    AppIndicator * ci = app_indicator_new ("my-id",
-                                           "my-name",
-                                           APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-
-    g_assert(ci != NULL);
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    g_signal_connect(G_OBJECT(ci), APP_INDICATOR_SIGNAL_NEW_LABEL, G_CALLBACK(label_signals_cb), &label_signals_count);
-
-    /* Shouldn't be a signal as it should be stuck in idle */
-    app_indicator_set_label(ci, "label", "guide");
-    g_assert(label_signals_count == 0);
-
-    /* Should show up after idle processing */
-    label_signals_check();
-    g_assert(label_signals_count == 1);
-
-    /* Shouldn't signal with no change */
-    label_signals_count = 0;
-    app_indicator_set_label(ci, "label", "guide");
-    label_signals_check();
-    g_assert(label_signals_count == 0);
-
-    /* Change one, we should get one signal */
-    app_indicator_set_label(ci, "label2", "guide");
-    label_signals_check();
-    g_assert(label_signals_count == 1);
-
-    /* Change several times, one signal */
-    label_signals_count = 0;
-    app_indicator_set_label(ci, "label1", "guide0");
-    app_indicator_set_label(ci, "label1", "guide1");
-    app_indicator_set_label(ci, "label2", "guide2");
-    app_indicator_set_label(ci, "label3", "guide3");
-    label_signals_check();
-    g_assert(label_signals_count == 1);
-
-    /* Clear should signal too */
-    label_signals_count = 0;
-    app_indicator_set_label(ci, NULL, NULL);
-    label_signals_check();
-    g_assert(label_signals_count == 1);
-
-    return;
-}
-
-void
-test_libappindicator_desktop_menu (void)
-{
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
-
-    AppIndicator * ci = app_indicator_new ("my-id-desktop-menu",
-                                           "my-name",
-                                           APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-
-    g_assert(ci != NULL);
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_build_menu_from_desktop(ci, SRCDIR "/test-libappindicator.desktop", "Test Program");
-
-    GValue serverval = {0};
-    g_value_init(&serverval, DBUSMENU_TYPE_SERVER);
-    g_object_get_property(G_OBJECT(ci), "dbus-menu-server", &serverval);
-
-    DbusmenuServer * server = DBUSMENU_SERVER(g_value_get_object(&serverval));
-    g_assert(server != NULL);
-
-    GValue rootval = {0};
-    g_value_init(&rootval, DBUSMENU_TYPE_MENUITEM);
-    g_object_get_property(G_OBJECT(server), DBUSMENU_SERVER_PROP_ROOT_NODE, &rootval);
-    DbusmenuMenuitem * root = DBUSMENU_MENUITEM(g_value_get_object(&rootval));
-    g_assert(root != NULL);
-
-    GList * children = dbusmenu_menuitem_get_children(root);
-    g_assert(children != NULL);
-    g_assert(g_list_length(children) == 3);
-
-
-
-    g_object_unref(G_OBJECT(ci));
-    return;
-}
-
-void
-test_libappindicator_desktop_menu_bad (void)
-{
-    g_test_log_set_fatal_handler (allow_warnings, NULL);
-
-    AppIndicator * ci = app_indicator_new ("my-id-desktop-menu-bad",
-                                           "my-name",
-                                           APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
-
-    g_assert(ci != NULL);
-    g_assert(app_indicator_get_label(ci) == NULL);
-    g_assert(app_indicator_get_label_guide(ci) == NULL);
-
-    app_indicator_build_menu_from_desktop(ci, SRCDIR "/test-libappindicator.desktop", "Not Test Program");
-
-    GValue serverval = {0};
-    g_value_init(&serverval, DBUSMENU_TYPE_SERVER);
-    g_object_get_property(G_OBJECT(ci), "dbus-menu-server", &serverval);
-
-    DbusmenuServer * server = DBUSMENU_SERVER(g_value_get_object(&serverval));
-    g_assert(server != NULL);
-
-    GValue rootval = {0};
-    g_value_init(&rootval, DBUSMENU_TYPE_MENUITEM);
-    g_object_get_property(G_OBJECT(server), DBUSMENU_SERVER_PROP_ROOT_NODE, &rootval);
-    DbusmenuMenuitem * root = DBUSMENU_MENUITEM(g_value_get_object(&rootval));
-    g_assert(root != NULL);
-
-    GList * children = dbusmenu_menuitem_get_children(root);
-    g_assert(g_list_length(children) == 0);
-
-    g_object_unref(G_OBJECT(ci));
-    return;
-}
-
-void
-test_libappindicator_props_suite (void)
-{
-    g_test_add_func ("/indicator-application/libappindicator/init",            test_libappindicator_init);
-    g_test_add_func ("/indicator-application/libappindicator/init_props",      test_libappindicator_init_with_props);
-    g_test_add_func ("/indicator-application/libappindicator/init_set_props",  test_libappindicator_init_set_props);
-    g_test_add_func ("/indicator-application/libappindicator/prop_signals",    test_libappindicator_prop_signals);
-    g_test_add_func ("/indicator-application/libappindicator/set_label",       test_libappindicator_set_label);
-    g_test_add_func ("/indicator-application/libappindicator/set_menu",        test_libappindicator_set_menu);
-    g_test_add_func ("/indicator-application/libappindicator/label_signals",   test_libappindicator_label_signals);
-    g_test_add_func ("/indicator-application/libappindicator/desktop_menu",    test_libappindicator_desktop_menu);
-    g_test_add_func ("/indicator-application/libappindicator/desktop_menu_bad",test_libappindicator_desktop_menu_bad);
-
-    return;
-}
-
-gint
-main (gint argc, gchar * argv[])
-{
-    gtk_init(&argc, &argv);
-    g_test_init(&argc, &argv, NULL);
-
-    /* Test suites */
-    test_libappindicator_props_suite();
-
+    g_test_add_func ("/indicator-application/libappindicator/init", init);
+    g_test_add_func ("/indicator-application/libappindicator/init_props", initProps);
+    g_test_add_func ("/indicator-application/libappindicator/init_set_props", initSetProps);
+    g_test_add_func ("/indicator-application/libappindicator/prop_signals", propSignals);
+    g_test_add_func ("/indicator-application/libappindicator/set_label", setLabel);
+    g_test_add_func ("/indicator-application/libappindicator/label_signals", labelSignals);
 
     return g_test_run ();
 }
