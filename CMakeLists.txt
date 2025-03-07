@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.13)
-project (libayatana-appindicator VERSION 2.0.0 LANGUAGES C)
+project (libayatana-appindicator-glib VERSION 2.0.0 LANGUAGES C)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     SET (CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "..." FORCE)

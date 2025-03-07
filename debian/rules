@@ -1,89 +1,29 @@
 #!/usr/bin/make -f
 
-include /usr/share/dpkg/architecture.mk
+NULL =
 
-FLAVOURS = gtk3 gtk2
+include /usr/share/dpkg/architecture.mk
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
 
-API_VERSION = 0.1
-
-CONFIGURE_COMMON_FLAGS = -DENABLE_TESTS=ON
-ifeq (,$(filter $(DEB_HOST_ARCH),amd64 arm64 armel armhf i386 mipsel ppc64el s390x kfreebsd-amd64 kfreebsd-i386 powerpc ppc64))
-# CONFIGURE_COMMON_FLAGS += -DENABLE_MONO_TESTS=OFF
-  CONFIGURE_COMMON_FLAGS +=
-else
-  dh_extra_args = ,cli
-endif
-CONFIGURE_FLAGS_gtk2 = -DFLAVOUR_GTK2=ON -DENABLE_GTKDOC=OFF
-CONFIGURE_FLAGS_gtk3 = -DFLAVOUR_GTK3=ON -DENABLE_GTKDOC=ON
-
 export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
-CFLAGS += -fPIC
-
 %:
-	dh $@ --with gir$(dh_extra_args)
+	dh $@ --with gir
 
-override_dh_auto_configure: $(FLAVOURS:%=doconfigure-%)
-
-doconfigure-%:
-	dh_auto_configure --builddirectory=build/$* -- $(CONFIGURE_FLAGS_$*) $(CONFIGURE_COMMON_FLAGS)
-
-override_dh_auto_build: $(FLAVOURS:%=dobuild-%)
-
-dobuild-%:
-	dh_auto_build --builddirectory=build/$*
-
-override_dh_auto_install: $(FLAVOURS:%=doinstall-%)
-
-doinstall-%:
-	dh_auto_install --builddirectory=build/$* --destdir=debian/tmp/$*
-
-override_dh_install:
-	find debian/tmp -name \*.la -exec rm {} \;
-	find debian/tmp -name \*.a -exec rm {} \;
-	rm -rf debian/tmp/*/usr/lib/mono
-	rm -rf debian/tmp/*/usr/share/vala/vapi/ayatana-appindicator*-0.1.deps
-	dh_install -plibayatana-appindicator1 --fail-missing --sourcedir=debian/tmp/gtk2
-	dh_install -pgir1.2-ayatanaappindicator-0.1 --fail-missing --sourcedir=debian/tmp/gtk2
-	dh_install -plibayatana-appindicator-dev --fail-missing --sourcedir=debian/tmp/gtk2
-	dh_install -plibayatana-appindicator-doc --fail-missing --sourcedir=debian/tmp/gtk3
-	dh_install -plibayatana-appindicator3-1 --fail-missing --sourcedir=debian/tmp/gtk3
-	dh_install -plibayatana-appindicator3-dev --fail-missing --sourcedir=debian/tmp/gtk3
-	dh_install -pgir1.2-ayatanaappindicator3-0.1 --fail-missing --sourcedir=debian/tmp/gtk3
-	if echo amd64 arm64 armel armhf i386 mipsel ppc64el s390x kfreebsd-amd64 kfreebsd-i386 powerpc ppc64 | grep -q $(DEB_HOST_ARCH); then \
-	    dh_install -plibayatana-appindicator3-0.1-cil --fail-missing --sourcedir=debian/tmp/gtk3; \
-	    dh_install -plibayatana-appindicator3-0.1-cil-dev --fail-missing --sourcedir=debian/tmp/gtk3; \
-	    dh_install -plibayatana-appindicator0.1-cil --fail-missing --sourcedir=debian/tmp/gtk2; \
-	    dh_install -plibayatana-appindicator0.1-cil-dev --fail-missing --sourcedir=debian/tmp/gtk2; \
-	fi
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	        -DENABLE_TESTS=ON \
+	        $(NULL)
 
 override_dh_auto_test:
-	mkdir -p $(CURDIR)/debian/tmphome-gtk3/.local/share
-	mkdir -p $(CURDIR)/debian/tmphome-gtk3/.cache
-	export HOME=$(CURDIR)/debian/tmphome-gtk3 \
-	    && export XDG_DATA_HOME=$(CURDIR)/debian/tmphome-gtk3/.local/share \
-	    && export XDG_CACHE_HOME=$(CURDIR)/debian/tmphome-gtk3/.cache \
+	mkdir -p $(CURDIR)/debian/tmphome/.local/share
+	mkdir -p $(CURDIR)/debian/tmphome/.cache
+	export HOME=$(CURDIR)/debian/tmphome \
+	    && export XDG_DATA_HOME=$(CURDIR)/debian/tmphome/.local/share \
+	    && export XDG_CACHE_HOME=$(CURDIR)/debian/tmphome/.cache \
 	    && unset DBUS_SESSION_BUS_ADDRESS \
-	    && dh_auto_test --no-parallel --builddirectory=build/gtk3
-	# View test's log file for better debugging of problems when built in clean chroots.
-	if [ -e build/gtk3/tests/test-suite.log ]; then cat build/gtk3/tests/test-suite.log; fi
-	rm -Rf $(CURDIR)/debian/tmphome-gtk3
-
-	mkdir -p $(CURDIR)/debian/tmphome-gtk2/.local/share
-	mkdir -p $(CURDIR)/debian/tmphome-gtk2/.cache
-	export HOME=$(CURDIR)/debian/tmphome-gtk2 \
-	    && export XDG_DATA_HOME=$(CURDIR)/debian/tmphome-gtk2/.local/share \
-	    && export XDG_CACHE_HOME=$(CURDIR)/debian/tmphome-gtk2/.cache \
-	    && unset DBUS_SESSION_BUS_ADDRESS \
-	    && dh_auto_test --no-parallel --builddirectory=build/gtk2
-	# View test's log file for better debugging of problems when built in clean chroots.
-	if [ -e build/gtk2/tests/test-suite.log ]; then cat build/gtk2/tests/test-suite.log; fi
-	rm -Rf $(CURDIR)/debian/tmphome-gtk2
-
-override_dh_auto_clean:
-	dh_auto_clean
-	rm -rf build
+	    && dh_auto_test --no-parallel
+	rm -Rf $(CURDIR)/debian/tmphome

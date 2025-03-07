@@ -4,11 +4,10 @@ libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 bindir=@CMAKE_INSTALL_FULL_BINDIR@
 includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 
-Cflags: -I${includedir}/libayatana-appindicator
+Cflags: -I${includedir}/libayatana-appindicator-glib
 Requires: gio-2.0 gobject-2.0
-Libs: -L${libdir} -layatana-appindicator
+Libs: -L${libdir} -layatana-appindicator-glib
 
-Name: ayatana-appindicator-2.0
-Description: Ayatana Application Indicators
+Name: ayatana-appindicator-glib
+Description: Ayatana Application Indicators (Glib-2.0 implementation)
 Version: @PROJECT_VERSION@
-
