@@ -5,8 +5,8 @@
 description = "An object to put application information into the panel"
 authors = "Ayatana Indicators Development Team"
 license = "GPL-3.0-or-later"
-browse_url = "https://github.com/AyatanaIndicators/libayatana-appindicator"
-repository_url = "https://github.com/AyatanaIndicators/libayatana-appindicator.git"
+browse_url = "https://github.com/AyatanaIndicators/libayatana-appindicator-glib"
+repository_url = "https://github.com/AyatanaIndicators/libayatana-appindicator-glib.git"
 website_url = "https://ayatana-indicators.org"
 dependencies = ["GObject-2.0", "Gio-2.0"]
 version = "@PROJECT_VERSION@"

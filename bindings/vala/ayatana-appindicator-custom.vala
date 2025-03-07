@@ -15,7 +15,7 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace AppIndicator
+namespace AyatanaAppIndicatorGlib
 {
   [CCode (type_check_function = "APP_IS_INDICATOR", type_id = "app_indicator_get_type ()")]
   public class Indicator : GLib.Object

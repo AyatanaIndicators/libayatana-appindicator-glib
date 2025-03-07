@@ -5,12 +5,12 @@ set (
     application-service-marshal.c
 )
 
-install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator.h" DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/libayatana-appindicator")
+install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator.h" DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/libayatana-appindicator-glib")
 
-# ayatana-appindicator-2.0.pc
+# ayatana-appindicator-glib.pc
 
-configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator-2.0.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-2.0.pc" @ONLY)
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-2.0.pc" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
+configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator-glib.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-glib.pc" @ONLY)
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-glib.pc" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
 
 # ayatana-appindicator-enum-types.h
 
@@ -26,7 +26,7 @@ add_custom_command (
     --output="${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-enum-types.h"
 )
 
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-enum-types.h" DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/libayatana-appindicator")
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-enum-types.h" DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/libayatana-appindicator-glib")
 
 # ayatana-appindicator-enum-types.c
 
@@ -72,59 +72,59 @@ add_custom_command (
     --output="${CMAKE_CURRENT_BINARY_DIR}/application-service-marshal.c"
 )
 
-# libayatana-appindicator.so
+# libayatana-appindicator-glib.so
 
-add_library ("ayatana-appindicator" SHARED ${SOURCES})
-set_target_properties ("ayatana-appindicator" PROPERTIES VERSION 2.0.0 SOVERSION 2)
-target_compile_definitions ("ayatana-appindicator" PUBLIC G_LOG_DOMAIN="libayatana-appindicator" SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories ("ayatana-appindicator" PUBLIC ${DEPS_INCLUDE_DIRS})
-target_include_directories ("ayatana-appindicator" PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories ("ayatana-appindicator" PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries ("ayatana-appindicator" ${DEPS_LIBRARIES})
-target_link_options ("ayatana-appindicator" PRIVATE "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator.symbols")
-install (TARGETS "ayatana-appindicator" LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
+add_library ("ayatana-appindicator-glib" SHARED ${SOURCES})
+set_target_properties ("ayatana-appindicator-glib" PROPERTIES VERSION 2.0.0 SOVERSION 2)
+target_compile_definitions ("ayatana-appindicator-glib" PUBLIC G_LOG_DOMAIN="libayatana-appindicator-glib" SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories ("ayatana-appindicator-glib" PUBLIC ${DEPS_INCLUDE_DIRS})
+target_include_directories ("ayatana-appindicator-glib" PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories ("ayatana-appindicator-glib" PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries ("ayatana-appindicator-glib" ${DEPS_LIBRARIES})
+target_link_options ("ayatana-appindicator-glib" PRIVATE "LINKER:--version-script=${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator.symbols")
+install (TARGETS "ayatana-appindicator-glib" LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}")
 
-# AyatanaAppIndicator-2.0.gir
+# AyatanaAppIndicatorGlib-2.0.gir
 
 find_package (GObjectIntrospection REQUIRED)
 
 add_custom_command (
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.gir"
-    DEPENDS "ayatana-appindicator"
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.gir"
+    DEPENDS "ayatana-appindicator-glib"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMAND
     ${INTROSPECTION_SCANNER}
     ayatana-appindicator.c ayatana-appindicator.h
     --add-include-path=${CMAKE_CURRENT_BINARY_DIR}
-    --c-include=libayatana-appindicator/ayatana-appindicator.h
+    --c-include=libayatana-appindicator-glib/ayatana-appindicator.h
     --symbol-prefix=app
     --identifier-prefix=App
-    --namespace=AyatanaAppIndicator
+    --namespace=AyatanaAppIndicatorGlib
     --nsversion=2.0
     --quiet
     --warn-all
     --include=Gio-2.0
     --include=GObject-2.0
     --library-path=${CMAKE_CURRENT_BINARY_DIR}
-    --library="ayatana-appindicator"
-    --output "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.gir"
+    --library="ayatana-appindicator-glib"
+    --output "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.gir"
 )
 
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.gir" DESTINATION "${CMAKE_INSTALL_FULL_DATADIR}/gir-1.0")
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.gir" DESTINATION "${CMAKE_INSTALL_FULL_DATADIR}/gir-1.0")
 
-# AyatanaAppIndicator-2.0.typelib
+# AyatanaAppIndicatorGlib-2.0.typelib
 
 add_custom_command (
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.typelib"
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.gir"
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.typelib"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.gir"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND
     ${INTROSPECTION_COMPILER}
     --includedir=${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.gir
-    -o "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.typelib"
+    ${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.gir
+    -o "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.typelib"
 )
 
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.typelib" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/girepository-1.0")
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.typelib" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/girepository-1.0")
 
-add_custom_target ("src" ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicator-2.0.typelib")
+add_custom_target ("src" ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.typelib")
