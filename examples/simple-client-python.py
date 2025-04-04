@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024 Robert Tari <robert@tari.in>
+# Copyright 2024-2025 Robert Tari <robert@tari.in>
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -17,9 +17,9 @@
 
 import gi
 
-gi.require_version('AyatanaAppIndicator', '2.0')
+gi.require_version('AyatanaAppIndicatorGlib', '2.0')
 
-from gi.repository import AyatanaAppIndicator
+from gi.repository import AyatanaAppIndicatorGlib
 from gi.repository import GLib, Gio
 import os
 import sys
@@ -34,8 +34,8 @@ class SimpleClient:
 
     def __init__ (self):
 
-        self.pIndicator = AyatanaAppIndicator.Indicator.new ("example-simple-client", "indicator-messages", AyatanaAppIndicator.IndicatorCategory.APPLICATION_STATUS)
-        self.pIndicator.set_status (AyatanaAppIndicator.IndicatorStatus.ACTIVE)
+        self.pIndicator = AyatanaAppIndicatorGlib.Indicator.new ("example-simple-client", "indicator-messages", AyatanaAppIndicatorGlib.IndicatorCategory.APPLICATION_STATUS)
+        self.pIndicator.set_status (AyatanaAppIndicatorGlib.IndicatorStatus.ACTIVE)
         self.pIndicator.set_attention_icon ("indicator-messages-new", "System Messages Icon Highlighted")
         self.pIndicator.set_label ("1%", "100%");
         self.pIndicator.set_title ("Test Indicator (Python)")
@@ -147,13 +147,13 @@ class SimpleClient:
 
         if self.bActive:
 
-            self.pIndicator.set_status (AyatanaAppIndicator.IndicatorStatus.ATTENTION)
+            self.pIndicator.set_status (AyatanaAppIndicatorGlib.IndicatorStatus.ATTENTION)
             pItem = Gio.MenuItem.new ("I'm okay now", "indicator.attention")
             self.bActive = False
 
         else:
 
-            self.pIndicator.set_status (AyatanaAppIndicator.IndicatorStatus.ACTIVE)
+            self.pIndicator.set_status (AyatanaAppIndicatorGlib.IndicatorStatus.ACTIVE)
             pItem = Gio.MenuItem.new ("Get Attention", "indicator.attention")
             self.bActive = True
 
