@@ -34,8 +34,11 @@ https://ayatana-indicators.org
 
 ## The Ayatana Application Indicator (Shared Library)
 
-A library to allow applications to export a menu into the an Application
-Indicators aware menu bar. Based on KSNI it also works in KDE.
+A library to allow applications to export a menu into an Application
+Indicators aware menu bar. Although based on SNI, this new GLib-only
+reimplementation uses Gio menus and actions (exported to org.gtk.Menus
+and org.gtk.Actions) instead of the old dbusmenu (formerly exported to
+com.canonical.dbusmenu).
 
 This code project was originally started by Canonical Ltd. and has been
 adapted by various authors with the purpose of making this Application

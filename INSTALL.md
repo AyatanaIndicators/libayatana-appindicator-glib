@@ -19,7 +19,7 @@
 ## For end-users and packagers
 
 ```
-cd libayatana-appindicator
+cd libayatana-appindicator-glib
 mkdir build
 cd build
 cmake ..
@@ -30,7 +30,7 @@ sudo make install
 ## For testers - tests only
 
 ```
-cd libayatana-appindicator
+cd libayatana-appindicator-glib
 mkdir build
 cd build
 cmake .. -DENABLE_WERROR=ON -DENABLE_TESTS=ON
@@ -41,7 +41,7 @@ make test
 ## For testers - both tests and code coverage
 
 ```
-cd libayatana-appindicator
+cd libayatana-appindicator-glib
 mkdir build
 cd build
 cmake .. -DENABLE_WERROR=ON -DENABLE_COVERAGE=ON
