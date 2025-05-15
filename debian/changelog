@@ -1,3 +1,10 @@
+libayatana-appindicator-glib (2.0.0) unstable; urgency=medium
+
+  * Upstream-provided Debian package for libayatana-appindicator-glib.
+    See upstream ChangeLog for recent changes.
+
+ -- UBports developers <developers@ubports.com>  Thu, 15 May 2025 10:39:01 +0200
+
 libayatana-appindicator-glib (2.0.0~) unstable; urgency=medium
 
   * Upstream-provided Debian package for libayatana-appindicator-glib.

@@ -1,6 +1,61 @@
+2025-05-15 Mike Gabriel
+
+        * Release 2.0.0 (HEAD -> main, tag: 2.0.0)
+        * d/changelog: mark as pre-release (3bdb615)
+        * Merge branch 'tari01-pr/update-md-files' (7f17ebe)
+
+2025-04-11 Robert Tari
+
+        * Update markdown files (20e0d38)
+
+2025-05-15 Mike Gabriel
+
+        * Merge branch 'tari01-pr/fix-python-example' (a9c74af)
+
+2025-04-04 Robert Tari
+
+        * examples/simple-client-python.py: Fix namespace (c7e6004)
+
+2025-03-07 Robert Tari
+
+        * Merge branch 'sunweaver-pr/namespacing-adjustments-to-new-libname'
+          (66f8279)
+
+2025-03-07 Mike Gabriel
+
+        * debian/: Adjust DEB packaging to rewrite of
+          'libayatana-appindicator' as
+          'libayatana-appindicator-glib'. (c9da098)
+        * Adjust namespacing to the new name 'libayatana-appindicator-glib'.
+          (65189c3)
+        * Merge branch 'tari01-pr/complete-rewrite-using-gmenu' (e5083db)
+
+2024-09-26 Robert Tari
+
+        * Rewrite from the ground up using Gio menus and actions (cf25a38)
+
+2024-07-03 Mike Gabriel
+
+        * Merge branch 'parona-source-undefined-version-script-symbols'
+          (e3c1dba)
+
+2024-07-02 Alfred Wingate
+
+        * Correct symbols in version script file (6e29dc3)
+          Fixes:
+          4d97676bb5ba1a7612aed36d219cbaa978adc90e
+
+2024-07-03 Mike Gabriel
+
+        * Merge branch 'barracuda156-apple' (fb1a124)
+
+2024-06-17 Sergey Fedorov
+
+        * Fix build on macOS (f8da900)
+
 2023-10-13 Mike Gabriel
 
-        * release 0.5.93 (HEAD -> master, tag: 0.5.93)
+        * release 0.5.93 (238c8b0) (tag: 0.5.93)
 
 2023-09-10 Mike Gabriel
 
