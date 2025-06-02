@@ -3,6 +3,8 @@ set (
     ayatana-appindicator.c
     ayatana-appindicator-enum-types.c
     application-service-marshal.c
+    notification-item.xml.c
+    notification-watcher.xml.c
 )
 
 install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator.h" DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/libayatana-appindicator-glib")
@@ -11,6 +13,34 @@ install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator.h" DESTINATION 
 
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator-glib.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-glib.pc" @ONLY)
 install (FILES "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-glib.pc" DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
+
+# notification-item.xml.h
+
+file (WRITE "${CMAKE_CURRENT_BINARY_DIR}/notification-item.xml.h" "extern const char * _notification_item;")
+
+# notification-item.xml.c
+
+file (READ "${CMAKE_CURRENT_SOURCE_DIR}/notification-item.xml" NOTIFICATION_ITEM_XML)
+string (REPLACE "\"" "\\\"" NOTIFICATION_ITEM_XML ${NOTIFICATION_ITEM_XML})
+string (REPLACE "\n" "\\n\"\n\"" NOTIFICATION_ITEM_XML ${NOTIFICATION_ITEM_XML})
+string (REGEX REPLACE "\n\"$" "\n" NOTIFICATION_ITEM_XML ${NOTIFICATION_ITEM_XML})
+string (PREPEND NOTIFICATION_ITEM_XML "const char * _notification_item = \n\"")
+string (APPEND NOTIFICATION_ITEM_XML "\;")
+file (WRITE "${CMAKE_CURRENT_BINARY_DIR}/notification-item.xml.c" ${NOTIFICATION_ITEM_XML})
+
+# notification-watcher.xml.h
+
+file (WRITE "${CMAKE_CURRENT_BINARY_DIR}/notification-watcher.xml.h" "extern const char * _notification_watcher;")
+
+# notification-watcher.xml.c
+
+file (READ "${CMAKE_CURRENT_SOURCE_DIR}/notification-watcher.xml" NOTIFICATION_WATCHER_XML)
+string (REPLACE "\"" "\\\"" NOTIFICATION_WATCHER_XML ${NOTIFICATION_WATCHER_XML})
+string (REPLACE "\n" "\\n\"\n\"" NOTIFICATION_WATCHER_XML ${NOTIFICATION_WATCHER_XML})
+string (REGEX REPLACE "\n\"$" "\n" NOTIFICATION_WATCHER_XML ${NOTIFICATION_WATCHER_XML})
+string (PREPEND NOTIFICATION_WATCHER_XML "const char * _notification_watcher = \n\"")
+string (APPEND NOTIFICATION_WATCHER_XML "\;")
+file (WRITE "${CMAKE_CURRENT_BINARY_DIR}/notification-watcher.xml.c" ${NOTIFICATION_WATCHER_XML})
 
 # ayatana-appindicator-enum-types.h
 
@@ -76,7 +106,7 @@ add_custom_command (
 
 add_library ("ayatana-appindicator-glib" SHARED ${SOURCES})
 set_target_properties ("ayatana-appindicator-glib" PROPERTIES VERSION 2.0.0 SOVERSION 2)
-target_compile_definitions ("ayatana-appindicator-glib" PUBLIC G_LOG_DOMAIN="libayatana-appindicator-glib" SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions ("ayatana-appindicator-glib" PUBLIC G_LOG_DOMAIN="libayatana-appindicator-glib")
 target_include_directories ("ayatana-appindicator-glib" PUBLIC ${DEPS_INCLUDE_DIRS})
 target_include_directories ("ayatana-appindicator-glib" PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories ("ayatana-appindicator-glib" PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
