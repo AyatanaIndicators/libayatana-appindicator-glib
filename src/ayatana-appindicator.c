@@ -22,6 +22,8 @@
 #include "ayatana-appindicator-enum-types.h"
 #include "application-service-marshal.h"
 #include "dbus-shared.h"
+#include "notification-watcher.xml.h"
+#include "notification-item.xml.h"
 
 enum
 {
@@ -1436,17 +1438,7 @@ static void app_indicator_class_init (AppIndicatorClass *klass)
     if (!m_pItemNodeInfo)
     {
         GError *pError = NULL;
-        gchar *sXml = NULL;
-        g_file_get_contents (SOURCE_DIR "/notification-item.xml", &sXml, NULL, &pError);
-
-        if (pError)
-        {
-            g_error ("Error reading file: %s", pError->message);
-            g_error_free (pError);
-        }
-
-        m_pItemNodeInfo = g_dbus_node_info_new_for_xml (sXml, &pError);
-        g_free (sXml);
+        m_pItemNodeInfo = g_dbus_node_info_new_for_xml (_notification_item, &pError);
 
         if (pError)
         {
@@ -1468,17 +1460,7 @@ static void app_indicator_class_init (AppIndicatorClass *klass)
     if (!m_pWatcherNodeInfo)
     {
         GError *pError = NULL;
-        gchar *sXml = NULL;
-        g_file_get_contents (SOURCE_DIR "/notification-watcher.xml", &sXml, NULL, &pError);
-
-        if (pError)
-        {
-            g_error ("Error reading file: %s", pError->message);
-            g_error_free (pError);
-        }
-
-        m_pWatcherNodeInfo = g_dbus_node_info_new_for_xml (sXml, &pError);
-        g_free (sXml);
+        m_pWatcherNodeInfo = g_dbus_node_info_new_for_xml (_notification_watcher, &pError);
 
         if (pError)
         {
