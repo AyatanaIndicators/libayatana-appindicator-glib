@@ -1,3 +1,7 @@
+Overview of changes in libayatana-appindicator-glib 2.0.1
+
+  - Generate C code for D-Bus XML definitions.
+
 Overview of changes in libayatana-appindicator-glib 2.0.0
 
   - Initial release of libayatana-appindicator-glib, a full rewrite from the

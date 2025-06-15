@@ -1,6 +1,15 @@
+2025-06-15 Mike Gabriel
+
+        * Release 2.0.1 (HEAD -> main, tag: 2.0.1)
+        * Merge branch 'tari01-pr/xml-to-c' (71a84ed)
+
+2025-06-02 Robert Tari
+
+        * Generate C code for D-Bus XML definitions (1aa8eb5)
+
 2025-05-15 Mike Gabriel
 
-        * Release 2.0.0 (HEAD -> main, tag: 2.0.0)
+        * Release 2.0.0 (8e38df6) (tag: 2.0.0)
         * d/changelog: mark as pre-release (3bdb615)
         * Merge branch 'tari01-pr/update-md-files' (7f17ebe)
 
