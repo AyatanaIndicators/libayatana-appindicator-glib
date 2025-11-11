@@ -21,8 +21,8 @@ making Ayatana Indicators a desktop agnostic technology.
 On GNU/Linux, Ayatana Indicators are currently available for desktop
 envinronments like MATE (used by default in [Ubuntu
 MATE](https://ubuntu-mate.com)), XFCE (used by default in
-[Xubuntu](https://bluesabre.org/2021/02/25/xubuntu-21-04-progress-update/),
-LXDE, and the Budgie Desktop).
+[Xubuntu](https://bluesabre.org/2021/02/25/xubuntu-21-04-progress-update/)),
+LXDE, and the Budgie Desktop.
 
 The Lomiri Operating Environment (UI of the Ubuntu Touch OS, formerly
 known as Unity8) uses Ayatana Indicators for rendering its notification
