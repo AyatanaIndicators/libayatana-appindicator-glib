@@ -2,7 +2,7 @@
 
 configure_file ("${CMAKE_CURRENT_SOURCE_DIR}/AyatanaAppIndicatorGlib-2.0.toml.in" "${CMAKE_CURRENT_BINARY_DIR}/AyatanaAppIndicatorGlib-2.0.toml" @ONLY)
 
-find_program (GI-DOCGEN REQUIRE gi-docgen)
+find_program (GI-DOCGEN gi-docgen)
 
 add_custom_command (
     OUTPUT "gi-docgen"
