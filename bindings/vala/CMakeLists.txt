@@ -4,7 +4,9 @@ install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/ayatana-appindicator-glib.deps" DEST
 
 # ayatana-appindicator-glib.vapi
 
-find_package (Vala REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(VALA REQUIRED vapigen)
+find_program(VAPI_GEN NAMES vapigen)
 
 add_custom_command (
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ayatana-appindicator-glib.vapi"
