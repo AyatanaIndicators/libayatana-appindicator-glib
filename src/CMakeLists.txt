@@ -117,7 +117,7 @@ install (TARGETS "ayatana-appindicator-glib" LIBRARY DESTINATION "${CMAKE_INSTAL
 # AyatanaAppIndicatorGlib-2.0.gir
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GIR REQUIRED gobject-introspect gobject-introspect-1.0）
+pkg_check_modules(GIR REQUIRED gobject-introspection gobject-introspection-1.0 gobject-introspect gobject-introspect-1.0)
 pkg_get_variable(INTROSPECTION_SCANNER GIR g_ir_scanner)
 pkg_get_variable(INTROSPECTION_COMPILER GIR g_ir_compiler)
 
