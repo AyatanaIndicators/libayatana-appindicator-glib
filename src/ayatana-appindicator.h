@@ -91,6 +91,7 @@ typedef struct _AppIndicatorClass
     void (*new_tooltip) (AppIndicator *indicator, gpointer user_data);
     void (*connection_changed) (AppIndicator *indicator, gboolean connected, gpointer user_data);
     void (*scroll_event) (AppIndicator *indicator, gint delta, guint direction, gpointer user_data);
+    void (*activate_event) (AppIndicator *indicator, gint x, gint y, gpointer user_data);
 } AppIndicatorClass;
 
 GType app_indicator_get_type ();

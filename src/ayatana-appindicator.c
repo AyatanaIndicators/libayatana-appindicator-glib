@@ -35,6 +35,7 @@ enum
     CONNECTION_CHANGED,
     NEW_ICON_THEME_PATH,
     SCROLL_EVENT,
+    ACTIVATE_EVENT,
     LAST_SIGNAL
 };
 
@@ -179,7 +180,29 @@ static void onBusMethodCall (GDBusConnection *pConnection, const gchar *sSender,
 
     AppIndicator *self = APP_INDICATOR (pData);
     AppIndicatorPrivate *pPrivate = app_indicator_get_instance_private (self);
-    gint nCompare = g_strcmp0 (sMethod, "Scroll");
+    gint nCompare = g_strcmp0 (sMethod, "Activate");
+
+    if (nCompare == 0)
+    {
+        gint x, y;
+        g_variant_get (pParams, "(ii)", &x, &y);
+
+        if (g_signal_has_handler_pending (self, signals[ACTIVATE_EVENT], 0, FALSE))
+        {
+            g_signal_emit (self, signals[ACTIVATE_EVENT], 0, x, y);
+            g_dbus_method_invocation_return_value (pInvocation, NULL);
+        }
+        else
+        {
+            /* No handler connected — return error so the panel falls back
+             * to showing the context menu for backward compatibility. */
+            g_dbus_method_invocation_return_error (pInvocation, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD, "No handler for Activate");
+        }
+
+        return;
+    }
+
+    nCompare = g_strcmp0 (sMethod, "Scroll");
 
     if (nCompare == 0)
     {
@@ -1434,6 +1457,17 @@ static void app_indicator_class_init (AppIndicatorClass *klass)
      * Signaled when the #AppIndicator receives a scroll event.
      */
     signals[SCROLL_EVENT] = g_signal_new ("scroll-event", G_TYPE_FROM_CLASS(klass), G_SIGNAL_RUN_LAST, G_STRUCT_OFFSET (AppIndicatorClass, scroll_event), NULL, NULL, _application_service_marshal_VOID__INT_UINT, G_TYPE_NONE, 2, G_TYPE_INT, G_TYPE_UINT);
+
+    /**
+     * AppIndicator::activate:
+     * @arg0: The #AppIndicator object
+     * @arg1: The x coordinate of the activation
+     * @arg2: The y coordinate of the activation
+     *
+     * Signaled when the #AppIndicator receives a primary activation event
+     * (e.g. left-click on the tray icon).
+     */
+    signals[ACTIVATE_EVENT] = g_signal_new ("activate", G_TYPE_FROM_CLASS(klass), G_SIGNAL_RUN_LAST, G_STRUCT_OFFSET (AppIndicatorClass, activate_event), NULL, NULL, _application_service_marshal_VOID__INT_INT, G_TYPE_NONE, 2, G_TYPE_INT, G_TYPE_INT);
 
     if (!m_pItemNodeInfo)
     {

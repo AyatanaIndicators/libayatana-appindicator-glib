@@ -15,3 +15,4 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 VOID: STRING, STRING
 VOID: INT, UINT
+VOID: INT, INT
