@@ -1,3 +1,16 @@
+Overview of changes in libayatana-appindicator-glib 2.0.2
+
+  - Misplaced closing parentheses.
+  - Update find_program for GI-DOCGEN.
+  - sovle arg not found.
+  - Fix pkg_check_modules for gobject-introspection.
+  - Update gobject-introspection package checks.
+  - Fix pkg_check_modules variable casing for Vala.
+  - Update CMakeLists.txt to use PkgConfig for Vala.
+  - Integrate gobject-introspection with pkg-config.
+  - Implement the Activate D-Bus method for primary click handling.
+  - Fix crash.
+
 Overview of changes in libayatana-appindicator-glib 2.0.1
 
   - Generate C code for D-Bus XML definitions.

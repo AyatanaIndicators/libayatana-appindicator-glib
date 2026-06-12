@@ -1,6 +1,58 @@
+2026-06-12 Mike Gabriel
+
+        * Release 2.0.2 (HEAD -> main, tag: 2.0.2)
+
+2026-06-10 Mike Gabriel
+
+        * Merge branch 'RedBearAK-patch-1' (110c8a9)
+
+2025-11-10 RedBearAK
+
+        * Misplaced closing parentheses (9808736)
+
+2026-06-10 Mike Gabriel
+
+        * Merge branch 'CicadaSeventeen-main' (ae5e1f1)
+
+2026-02-23 Cicada17
+
+        * Update find_program for GI-DOCGEN (483681b)
+
+2026-02-23 Jy Deng
+
+        * sovle arg not found (1491b4d)
+
+2026-02-23 Cicada17
+
+        * Fix pkg_check_modules for gobject-introspection (02f93ba)
+        * Update gobject-introspection package checks (6f00567)
+
+2026-02-22 Cicada17
+
+        * Fix pkg_check_modules variable casing for Vala (0412f21)
+        * Update CMakeLists.txt to use PkgConfig for Vala (5aa8382)
+        * Integrate gobject-introspection with pkg-config (d3e5fab)
+
+2026-06-10 Mike Gabriel
+
+        * Merge branch 'mikhailnov-activate-signal' (b8b0288)
+
+2026-04-28 Mikhail Novosyolov
+
+        * Implement the Activate D-Bus method for primary click handling
+          (75d3b79)
+
+2025-08-05 Mike Gabriel
+
+        * Merge branch 'lidaobing-fix_middle_click_crash' (51f241d)
+
+2025-07-25 LI Daobing
+
+        * fix crash (b5e8736)
+
 2025-06-15 Mike Gabriel
 
-        * Release 2.0.1 (HEAD -> main, tag: 2.0.1)
+        * Release 2.0.1 (175c433) (tag: 2.0.1)
         * Merge branch 'tari01-pr/xml-to-c' (71a84ed)
 
 2025-06-02 Robert Tari
