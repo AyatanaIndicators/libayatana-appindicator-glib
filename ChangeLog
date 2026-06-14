@@ -1,6 +1,12 @@
+2026-06-14 Mike Gabriel
+
+        * Release 2.0.3 (HEAD -> main, tag: 2.0.3)
+        * examples/CMakeLists.txt: Find package Vala before referencing
+          anything from it. (dc6021f)
+
 2026-06-12 Mike Gabriel
 
-        * Release 2.0.2 (HEAD -> main, tag: 2.0.2)
+        * Release 2.0.2 (711673a) (tag: 2.0.2)
 
 2026-06-10 Mike Gabriel
 

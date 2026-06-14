@@ -1,3 +1,8 @@
+Overview of changes in libayatana-appindicator-glib 2.0.3
+
+  - examples/CMakeLists.txt: Find package Vala before referencing
+    anything from it.
+
 Overview of changes in libayatana-appindicator-glib 2.0.2
 
   - Misplaced closing parentheses.
