@@ -1,3 +1,5 @@
+find_package(Vala)
+
 # simple-client
 
 add_executable ("simple-client" "${CMAKE_CURRENT_SOURCE_DIR}/simple-client.c")
